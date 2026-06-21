@@ -1,10 +1,15 @@
 /**
  * Project SparseMind - Dashboard Logic (Neurosparse v1)
- * Clean, minimal theme-switching, local metrics simulator, 
- * and database integration placeholders.
+ * Clean theme-switching, local metrics simulator, 
+ * and dynamic self-loading real-time Supabase integration.
  */
 
-// --- 1. Loader, Cursor Glow & Particles Setup ---
+// --- 1. Supabase Cloud Configuration ---
+// Fill in your credentials here to disable local simulation and listen to real training data!
+const SUPABASE_URL = ""; 
+const SUPABASE_KEY = ""; 
+
+// --- 2. Loader, Cursor Glow & Particles Setup ---
 
 // Cinematic Loader Transition
 window.addEventListener('load', () => {
@@ -39,7 +44,6 @@ if (glow) {
     resize();
     window.addEventListener('resize', resize);
 
-    // Faint, slow particles to prevent visual clutter
     for (let i = 0; i < 40; i++) {
         pts.push({
             x: Math.random() * w,
@@ -64,7 +68,6 @@ if (glow) {
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            // Draw using theme-adaptive color property or fallback matcha green
             const matchaColor = getComputedStyle(document.body).getPropertyValue('--matcha').trim() || '#6b9a5b';
             ctx.fillStyle = matchaColor;
             ctx.globalAlpha = p.o;
@@ -77,7 +80,7 @@ if (glow) {
 })();
 
 
-// --- 2. Theme Switching Logic ---
+// --- 3. Theme Switching Logic ---
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const themeIcon = document.getElementById('themeIcon');
 
@@ -101,14 +104,12 @@ if (themeToggleBtn) {
             themeIcon.textContent = isLight ? 'light_mode' : 'dark_mode';
         }
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        
-        // Redraw canvas with the correct theme color
         drawLossSparkline();
     });
 }
 
 
-// --- 3. Dynamic Training Metric Variables ---
+// --- 4. Dynamic Training Metric Variables ---
 let currentEpoch = 0;
 let currentLoss = 1.8540;
 let currentSparsity = 0.0;
@@ -139,53 +140,96 @@ const lossCanvas = document.getElementById('loss-canvas');
 const ctx = lossCanvas ? lossCanvas.getContext('2d') : null;
 
 
-// --- 4. Live Cloud Sync Template (Firebase / Supabase) ---
-/**
- * TO INTEGRATE A CLOUD DATABASE (E.G., SUPABASE OR FIREBASE):
- * 
- * 1. Include the SDK inside index.html (or install via npm):
- *    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- * 
- * 2. Set up the client and subscribe to real-time changes:
- * 
- *    const supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL';
- *    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
- *    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
- * 
- * 3. Subscribe to your training logs table:
- * 
- *    function connectCloudDatabase() {
- *        logToConsole("[SYSTEM] Subscribing to Supabase Realtime channel...");
- *        
- *        // Disable local simulation since we are using cloud data
- *        stopSimulation();
- *        btnToggleSim.disabled = true;
- *        btnToggleSim.textContent = "CLOUD FEED ACTIVE";
- *        
- *        const dbIndicator = document.getElementById('db-indicator');
- *        const dbStatusText = document.getElementById('db-status-text');
- *        
- *        dbIndicator.classList.remove('offline');
- *        dbIndicator.classList.add('online');
- *        dbStatusText.textContent = "Supabase Realtime Synced";
- * 
- *        supabase
- *          .channel('training-stats')
- *          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'metrics' }, payload => {
- *              const data = payload.new;
- *              
- *              // Update local values with real data from db
- *              updateMetrics(data.epoch, data.loss, data.sparsity);
- *              logToConsole(`[CLOUD] Received step: Epoch ${data.epoch} | Loss: ${data.loss.toFixed(4)}`);
- *          })
- *          .subscribe();
- *    }
- * 
- * 4. Simply call connectCloudDatabase() on window load if you want cloud updates to take over.
- */
+// --- 5. Supabase Real-Time Client Loader & Link ---
+function loadSupabaseAndConnect() {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+        logToConsole("[SYSTEM] Database keys empty. Booting simulator feed.");
+        startSimulation();
+        return;
+    }
+    
+    logToConsole("[SYSTEM] Initializing Supabase cloud sync...");
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    script.onload = () => {
+        connectToSupabase();
+    };
+    script.onerror = () => {
+        logToConsole("[ERROR] Failed to load Supabase SDK. Falling back to simulator.");
+        startSimulation();
+    };
+    document.head.appendChild(script);
+}
+
+function connectToSupabase() {
+    try {
+        stopSimulation(); // Terminate local training simulator
+        
+        // Lock simulation interface controls
+        if (btnToggleSim) {
+            btnToggleSim.disabled = true;
+            btnToggleSim.textContent = "CLOUD FEED ACTIVE";
+        }
+        if (btnResetSim) {
+            btnResetSim.disabled = true;
+        }
+
+        // Toggle database connection indicators on the UI capsule
+        const dbIndicator = document.getElementById('db-indicator');
+        const dbStatusText = document.getElementById('db-status-text');
+        
+        if (dbIndicator) {
+            dbIndicator.classList.remove('offline');
+            dbIndicator.classList.add('online');
+        }
+        if (dbStatusText) {
+            dbStatusText.textContent = "Supabase Synced";
+        }
+
+        // Initialize Supabase Client
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Fetch last metric values to sync dashboard state on load
+        supabaseClient
+            .from('metrics')
+            .select('epoch, loss, sparsity')
+            .order('id', { ascending: false })
+            .limit(1)
+            .then(({ data, error }) => {
+                if (error) {
+                    logToConsole(`[ERROR] Failed to fetch baseline data: ${error.message}`);
+                } else if (data && data.length > 0) {
+                    const row = data[0];
+                    updateMetrics(row.epoch, row.loss, row.sparsity);
+                    logToConsole(`[SYSTEM] Sync complete. Current training epoch: ${row.epoch}`);
+                } else {
+                    updateMetrics(0, 1.8540, 0.0);
+                    logToConsole("[SYSTEM] Database empty. Awaiting new training steps...");
+                }
+            });
+
+        // Subscribe to real-time INSERT changes on the metrics table
+        supabaseClient
+            .channel('metrics_feed')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'metrics' }, payload => {
+                const data = payload.new;
+                updateMetrics(data.epoch, data.loss, data.sparsity);
+                logToConsole(`[CLOUD] Metric insertion: Epoch ${data.epoch} | Loss: ${data.loss.toFixed(4)}`);
+            })
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    logToConsole("[SYSTEM] Database real-time socket established.");
+                }
+            });
+            
+    } catch (err) {
+        logToConsole(`[ERROR] Supabase initialization failed: ${err.message}`);
+        startSimulation();
+    }
+}
 
 
-// --- 5. DOM Update Functions ---
+// --- 6. DOM Update Functions ---
 function updateMetrics(epoch, loss, sparsity) {
     currentEpoch = epoch;
     currentLoss = loss;
@@ -235,8 +279,6 @@ function drawLossSparkline() {
     if (lossHistory.length < 2) return;
 
     ctx.beginPath();
-    
-    // Resolve the active theme-specific highlight gold color
     const goldColor = getComputedStyle(document.body).getPropertyValue('--highlight-gold').trim() || '#dfb13c';
     ctx.strokeStyle = goldColor;
     ctx.lineWidth = 1.5;
@@ -264,7 +306,7 @@ function drawLossSparkline() {
 }
 
 
-// --- 6. Simulation Engine Loop ---
+// --- 7. Simulation Engine Loop ---
 function runSimulationStep() {
     if (currentEpoch >= targetEpochs) {
         logToConsole('[SIM] Training cycle complete! Model converged.');
@@ -300,10 +342,9 @@ function stopSimulation() {
     isSimulating = false;
     if (btnToggleSim) {
         btnToggleSim.textContent = "RESUME SIMULATION";
-        btnToggleSim.classList.remove('btn-fill');
+        btnToggleSim.classList.remove('btn-primary');
         btnToggleSim.classList.add('btn-outline');
     }
-    logToConsole('[SIM] Simulation paused.');
     if (simIntervalId) {
         clearInterval(simIntervalId);
     }
@@ -318,7 +359,7 @@ function resetSimulation() {
 }
 
 
-// --- 7. Event Listeners ---
+// --- 8. Event Listeners ---
 if (btnToggleSim) {
     btnToggleSim.addEventListener('click', () => {
         if (isSimulating) {
@@ -335,9 +376,8 @@ if (btnResetSim) {
     });
 }
 
-// Initialize on page load
+// Initialize
 window.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    updateMetrics(0, 1.8540, 0.0);
-    startSimulation();
+    loadSupabaseAndConnect();
 });
