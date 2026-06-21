@@ -3,214 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project SparseMind | Neurosparse v1 Dashboard</title>
-    <!-- Premium Google Fonts matching portfolio site -->
+    <title>Project SparseMind | Neurosparse v1</title>
+    <!-- Google Fonts matching the portfolio site -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Material Icons for clean toggle button -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Material Icons for the theme switch -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Cursor Glow Effect (Soft and Subtle) -->
-    <div class="cursor-glow" id="cursorGlow"></div>
 
-    <!-- Soft Animated Mesh Background Blobs (Low opacity to prevent visual clutter) -->
-    <div class="mesh-bg">
-        <div class="mesh-blob b1"></div>
-        <div class="mesh-blob b2"></div>
-        <div class="mesh-blob b3"></div>
+    <!-- Simple Theme Toggle in the Top Corner -->
+    <div class="top-bar">
+        <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle light/dark theme">
+            <span class="material-symbols-rounded" id="themeIcon">dark_mode</span>
+        </button>
     </div>
 
-    <!-- Floating Particles Canvas (Minimal) -->
-    <canvas id="particles"></canvas>
-
-    <!-- Clean Portfolio-style Loader -->
-    <div class="loader" id="loader">
-        <div class="loader-text">
-            <span style="--i:0">S</span><span style="--i:1">p</span><span style="--i:2">a</span><span style="--i:3">r</span><span style="--i:4">s</span><span style="--i:5">e</span><span style="--i:6">M</span><span style="--i:7">i</span><span style="--i:8">n</span><span style="--i:9">d</span>
-        </div>
-        <div class="loader-sub">Neurosparse v1 Core Interface</div>
-        <div class="loader-bar"></div>
-    </div>
-
-    <!-- Main Dashboard Container -->
-    <main class="dashboard-container">
-        <!-- Top Status Bar & Header -->
-        <header class="dashboard-header">
-            <div class="header-title-container">
-                <div class="logo-accent"></div>
-                <h1 class="header-title">PROJECT SPARSEMIND</h1>
-                <span class="model-tag">Neurosparse v1</span>
-            </div>
-            
-            <div class="header-controls">
-                <div class="status-indicator">
-                    <span class="status-dot"></span>
-                    <span class="status-text">Status: <span class="status-active">Active / Training</span></span>
-                </div>
-                
-                <!-- Clean Dark/Light Mode Switcher -->
-                <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle light/dark theme">
-                    <span class="material-symbols-rounded" id="themeIcon">dark_mode</span>
-                </button>
-            </div>
+    <!-- Minimalist Typography Container -->
+    <main class="content-container">
+        <!-- Header -->
+        <header class="project-header">
+            <span class="step-badge">STEP 1</span>
+            <h1 class="project-title">Project SparseMind</h1>
+            <p class="project-subtitle">Model: Neurosparse v1</p>
         </header>
 
-        <!-- Main Workspace Grid -->
-        <div class="dashboard-content">
+        <!-- Divider Line -->
+        <div class="divider"></div>
+
+        <!-- Section 1: Objective/Goal -->
+        <section class="section">
+            <h2 class="section-title">Objective</h2>
+            <p class="goal-text">
+                Building a high-efficiency sparse Large Language Model (1M-5M parameters) optimized for commodity hardware, specifically targetting T4 GPU acceleration via dynamic activation sparsity and weight pruning.
+            </p>
+        </section>
+
+        <!-- Section 2: Current Progress / Step 1 Status -->
+        <section class="section">
+            <h2 class="section-title">Current Progress</h2>
             
-            <!-- Left Panel: Core Metrics & Objectives -->
-            <section class="main-panel">
-                
-                <!-- Mission Box -->
-                <div class="card mission-card">
-                    <div class="card-header">
-                        <span class="card-num">01 —</span>
-                        <h2>Mission Objective</h2>
-                    </div>
-                    <p class="mission-text">
-                        Building a high-efficiency sparse Large Language Model (1M-5M parameters) optimized for commodity hardware, specifically targetting T4 GPU acceleration via dynamic activation sparsity and weight pruning.
-                    </p>
-                    <div class="tech-specs">
-                        <span class="spec-tag">Target: T4 GPU</span>
-                        <span class="spec-tag">Params: 1M - 5M</span>
-                        <span class="spec-tag">Arch: MoE-Sparse</span>
-                    </div>
+            <div class="metrics-stack">
+                <div class="metric-row">
+                    <span class="metric-label">Current Epoch</span>
+                    <span class="metric-value">1</span>
                 </div>
-
-                <!-- Live Checkpoint Monitoring Panel -->
-                <div class="card monitor-card">
-                    <div class="card-header">
-                        <span class="card-num">02 —</span>
-                        <h2>Live Checkpoint Monitoring</h2>
-                        <span class="live-badge">Live Feed</span>
-                    </div>
-                    
-                    <div class="metrics-grid">
-                        <!-- Epoch Card -->
-                        <div class="metric-box">
-                            <span class="metric-label">CURRENT EPOCH</span>
-                            <div class="metric-value" id="val-epoch">0</div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill" id="bar-epoch" style="width: 0%"></div>
-                            </div>
-                            <span class="metric-subtext">Target: 100 Epochs</span>
-                        </div>
-
-                        <!-- Loss Card -->
-                        <div class="metric-box">
-                            <span class="metric-label">TRAINING LOSS</span>
-                            <div class="metric-value highlight-gold" id="val-loss">0.0000</div>
-                            <div class="sparkline-container">
-                                <canvas id="loss-canvas" width="160" height="30"></canvas>
-                            </div>
-                            <span class="metric-subtext">Target: &lt; 0.0500</span>
-                        </div>
-
-                        <!-- Sparsity Card -->
-                        <div class="metric-box">
-                            <span class="metric-label">SPARSITY RATIO</span>
-                            <div class="metric-value highlight-matcha" id="val-sparsity">0.0%</div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill green-fill" id="bar-sparsity" style="width: 0%"></div>
-                            </div>
-                            <span class="metric-subtext">Target: &gt; 75.0%</span>
-                        </div>
-                    </div>
-
-                    <!-- Simulator Control Section -->
-                    <div class="simulator-controls">
-                        <span class="control-description">Simulate model training loop locally:</span>
-                        <div class="btn-group">
-                            <button id="btn-toggle-sim" class="btn btn-fill">PAUSE SIMULATION</button>
-                            <button id="btn-reset-sim" class="btn btn-outline">RESET</button>
-                        </div>
-                    </div>
+                <div class="metric-row">
+                    <span class="metric-label">Training Loss</span>
+                    <span class="metric-value">1.8540</span>
                 </div>
-
-                <!-- Live Logs / Console -->
-                <div class="card logs-card">
-                    <div class="card-header">
-                        <span class="card-num">03 —</span>
-                        <h2>System logs</h2>
-                    </div>
-                    <div class="console-body" id="console-logs">
-                        <div class="log-line system">[SYSTEM] Dashboard loaded successfully. Initializing Neurosparse v1...</div>
-                        <div class="log-line system">[SYSTEM] Connecting to local training socket...</div>
-                        <div class="log-line simulation">[SIM] Running in demo mode. Toggle above to control simulation.</div>
-                    </div>
+                <div class="metric-row">
+                    <span class="metric-label">Sparsity Ratio</span>
+                    <span class="metric-value">0.0%</span>
                 </div>
+            </div>
+        </section>
 
-            </section>
-
-            <!-- Right Panel: Geometric Capsule Design (Clean representation of the pill) -->
-            <section class="side-panel">
-                <div class="capsule-card">
-                    <!-- Clean horizontal lines intersecting the pill container -->
-                    <div class="horizontal-stripes">
-                        <div class="stripe stripe-1"></div>
-                        <div class="stripe stripe-2"></div>
-                        <div class="stripe stripe-3"></div>
-                    </div>
-                    
-                    <div class="capsule-inner">
-                        <div class="capsule-content">
-                            <h3>Hardware stats</h3>
-                            
-                            <div class="stat-group">
-                                <div class="stat-row">
-                                    <span class="stat-label">GPU TEMP</span>
-                                    <span class="stat-val">68°C</span>
-                                </div>
-                                <div class="bar-micro"><div class="bar-micro-fill" style="width: 68%"></div></div>
-                            </div>
-
-                            <div class="stat-group">
-                                <div class="stat-row">
-                                    <span class="stat-label">VRAM UTIL</span>
-                                    <span class="stat-val">11.2 GB / 16 GB</span>
-                                </div>
-                                <div class="bar-micro"><div class="bar-micro-fill" style="width: 70%"></div></div>
-                            </div>
-
-                            <div class="stat-group">
-                                <div class="stat-row">
-                                    <span class="stat-label">T4 CORE SPEED</span>
-                                    <span class="stat-val">1590 MHz</span>
-                                </div>
-                                <div class="bar-micro"><div class="bar-micro-fill" style="width: 85%"></div></div>
-                            </div>
-
-                            <div class="divider-dashed"></div>
-
-                            <h3>Cloud sync</h3>
-                            <div class="db-status-container">
-                                <div class="db-dot offline" id="db-indicator"></div>
-                                <span class="db-text" id="db-status-text">Local Simulated Feed</span>
-                            </div>
-                            <p class="db-desc">
-                                Connect your cloud database (Supabase/Firebase) using the configuration in <span class="code-highlight">script.js</span>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div>
-
-        <!-- Footer Section -->
-        <footer class="dashboard-footer">
-            <span class="footer-left">PHOENIX TECH &copy; 2026</span>
-            <span class="footer-right">
-                <a href="https://github.com/phoenixdevellopment75-web/Neurollm" target="_blank" class="github-link">
-                    <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-                    github.com/phoenixdevellopment75-web/Neurollm
-                </a>
-            </span>
+        <!-- Footer -->
+        <footer class="project-footer">
+            <span class="footer-team">PHOENIX TECH</span>
+            <a href="https://github.com/phoenixdevellopment75-web/Neurollm" target="_blank" class="github-link">
+                <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                github/Neurollm
+            </a>
         </footer>
     </main>
+
     <script src="script.js"></script>
 </body>
 </html>
