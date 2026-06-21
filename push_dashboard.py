@@ -99,6 +99,14 @@ INDEX_HTML = """<!DOCTYPE html>
         </button>
     </div>
 
+    <div class="loader" id="loader">
+        <div class="loader-text">
+            <span style="--i:0">S</span><span style="--i:1">p</span><span style="--i:2">a</span><span style="--i:3">r</span><span style="--i:4">s</span><span style="--i:5">e</span><span style="--i:6">M</span><span style="--i:7">i</span><span style="--i:8">n</span><span style="--i:9">d</span>
+        </div>
+        <div class="loader-sub">Neurosparse v1 Core Interface</div>
+        <div class="loader-bar"></div>
+    </div>
+
     <main class="content-container">
         <header class="project-header">
             <span class="step-badge">STEP 1</span>
@@ -120,12 +128,12 @@ INDEX_HTML = """<!DOCTYPE html>
             
             <div class="metrics-stack">
                 <div class="metric-row">
-                    <span class="metric-label">Current Epoch</span>
+                    <span class="metric-label">Current Checkpoint</span>
                     <span class="metric-value">1</span>
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">Training Loss</span>
-                    <span class="metric-value">1.8540</span>
+                    <span class="metric-value">0.0000</span>
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">Sparsity Ratio</span>
